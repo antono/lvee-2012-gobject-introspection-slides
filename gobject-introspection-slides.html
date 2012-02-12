@@ -1,0 +1,349 @@
+<!DOCTYPE HTML>
+<html lang="ru-RU">
+  <head>
+    <meta charset="UTF-8">
+    <title>Обзор GObject Introspection</title>
+    <meta name="description" content="Обзор GObject Introspection" />
+    <meta name="keywords" content="GObject, GTK, Vala, Introspection, Bindings, GLib, GNOME" />
+    <meta name="author" content="Antono Vasiljev" />
+    <meta name="viewport" content="width=1274, user-scalable=no">
+    <link rel="stylesheet" href="themes/ribbon/styles/style.css">
+    <style>
+      #Cover h2 { color:white; text-align:center; font-size:70px; }
+      #Cover p  { color:#ccc; text-align:center; font-size:40px; margin: 20px 0px; }
+      #Cover p.copyright a { color:#999; font-size:20px; text-decoration: none; }
+    </style>
+  </head>
+  <body class="list">
+    <header class="caption">
+      <h1>Обзор GObject Introspection</h1>
+      <p>Antono Vasiljev, http://antono.info/</p>
+    </header>
+    
+    <div class="slide bg" id="Cover">
+      <div>
+        <section>
+	  <header style="background-color: gray; padding: 30px;">
+	    <h2>Обзор GObject Introspection</h2>
+            <p>Anton Vasiljev, LVEE Winter 2012</p>
+            <p class="copyright">
+              <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
+                Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)</a>
+            </p>
+	  </header>
+	  <img src="pictures/machinery.jpg" alt="">
+	  <!-- © http://www.flickr.com/photos/danielfoster/,
+               http://creativecommons.org/licenses/by/2.0/ -->
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="Goals">
+      <div>
+        <section>
+	  <header>
+	    <h2>Цели проекта</h2>
+	  </header>
+	  <p>
+            <code>GObject Introspection</code> &mdash; это проект
+            возникший для решения проблем с созданием высокоуровневых
+            языковых привязок для библиотек проекта
+            <code>GNOME</code>.
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="LegacyBindingsProgress">
+      <div>
+        <section>
+	  <header>
+	    <h2>Состояние привязок для GTK+</h2>
+	  </header>
+	  <img src="pictures/bindings.png">
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="Problem">
+      <div>
+        <section>
+	  <header>
+	    <h2>Основная проблема</h2>
+	  </header>
+	  <p>
+            Привязки всегда отстают от последних версий библиотек.
+          </p>
+	  <p>
+            Поддержка языковых привязок для разных языков тебует
+            огромного количества времени.
+          </p>
+	  <p>
+            Документация для привязок зачастую отсутствует.
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="Trollface">
+      <div>
+        <section>
+          <img src="pictures/trollface.jpg" width="400" class="middle">
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="Features">
+      <div>
+        <section>
+	  <header>
+	    <h2>Решение проблемы</h2>
+	  </header>
+          <p>
+            Инструменты из проекта <code>GObject Introspection</code> позволяют
+            <strong>автоматически</strong> создавать языковые привязки
+            для библиотек использующих <code>GLib</code> и
+            <code>GObject</code>.
+          </p>
+          <p>
+            Привязки могут создаваться как на этапе исполнения (через
+            <code>FFI</code>) так и на этапе сборки (с использованием кодогенератора для
+            конкретного языка).
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="AdditionalGoals">
+      <div>
+        <section>
+	  <header>
+	    <h2>Полезные последствия</h2>
+	  </header>
+	  <ol class="inner">
+	    <li class="active">Общая инфраструктура для всех привязок</li>
+	    <li>Верификация API</li>
+	    <li>Генерация документации</li>
+	    <li>Сериализация вызовов (RPC, DBus)</li>
+	  </ol>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide shout" id="Architecture">
+      <div>
+        <section>
+	  <header>
+	    <h2>Как это<br/>работает?</h2>
+	  </header>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide bg" id="Diagram">
+      <div>
+        <section>
+	  <object data="pictures/architecture.svg" type="image/svg+xml" class="middle"></object>
+        </section>
+      </div>
+    </div>
+
+    <div class="slide" id="Metadata">
+      <div>
+        <section>
+	  <header>
+            <h1> Как собираются метаданные? <h1>
+	  </header>
+          <p>
+            Чтобы автоматически создать привязки для вашей библиотеки
+            вы должны добавить комментарии в специальном формате
+            (анотации) к вашему коду на языке <code>C</code>...
+          </p>
+          <p>
+            ...либо написать ваш код на языке <code>Vala</code>.
+            Компилятор <code>vala</code> транслирует код в C и
+            автоматически создает анотации.
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="Metadata2">
+      <div>
+        <section>
+	  <header>
+            <h1> Как собираются метаданные? <h1>
+	  </header>
+          <p>
+            Если вы не используете язык <code>Vala</code> &mdash; вам
+            придется использовать утилиту <code>g-ir-scanner</code>
+            которая извлекает метаданные из кода на <code>C</code> и
+            сохраняет их в специальном формате.
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="GIR">
+      <div>
+        <section>
+	  <header>
+            <h1> Как хранятся метаданные? <h1>
+	  </header>
+          <p>
+            Для хранения метаданных используется формат <code>GIR</code>,
+            основанный на <code>XML</code>.
+          </p>
+          <p>
+            <code>GIR</code> содержит данные о объектах, функциях, правилах их
+            вызова, правилах управления памятью и документацию.
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="typelib">
+      <div>
+        <section>
+	  <header>
+            <h1> Как используются метаданные? <h1>
+	  </header>
+          <p>
+            <code>GIR</code> &mdash; это промежуточный формат хранения метаданных.
+            С помощью <code>g-ir-compiler</code> он компилируется в бинарный формат
+            <code>typelib</code>.
+          </p>
+          <p>
+            <code>typelib</code> позволяет эффективно использовать
+            метаданные на этапе выполнения программы.
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="bindings">
+      <div>
+        <section>
+	  <header>
+            <h1> Как используются метаданные? <h1>
+	  </header>
+          <p>
+            Для поиска метаданных в <code>typelib</code> написана библиотека
+            <code>libgirepository.so</code>
+          </p>
+          <p>
+            Языковые привязки находят необходимые функции
+            через <code>libgirepository.so</code> и вызывают их
+            через <code>FFI</code>.
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="languages">
+      <div>
+        <section>
+	  <header>
+            <h1> Какие языки умеют это? <h1>
+	  </header>
+          <style scoped="scoped">
+            td { padding: 10px 30px; }
+          </style>
+          <table>
+            <tr>
+              <td> Python </td>
+              <td> Ruby </td>
+              <td> Perl </td>
+            </tr>
+            <tr>
+              <td> PHP </td>
+              <td> Lua </td>
+              <td> Pascal </td>
+            </tr>
+            <tr>
+              <td> Haskell </td>
+              <td> JavaScript </td>
+              <td> Scheme </td>
+            </tr>
+            <tr>
+              <td> Java </td>
+              <td> Lisp </td>
+              <td> Vala </td>
+            </tr>
+            <tr>
+              <td> <a href="https://live.gnome.org/GObjectIntrospection/Users">Полный список...</a> </td>
+            </tr>
+          </table>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="examples">
+      <div>
+        <section>
+	  <header>
+            <h1> Примеры <h1>
+	  </header>
+          <p>
+            Я выложил репозиторий с примерами использования библиотеки
+            написанной на <code>Vala</code> и привязок для Ruby, Python, Perl, Lua и JavaScript.
+          </p>
+          <p>
+            <a href="https://github.com/antono/vala-object">https://github.com/antono/vala-object</a>
+          </p>
+          <p>
+            Пулл реквесты приветствуются :)
+          </p>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="BlockQuote">
+      <div>
+        <section>
+	  <header>
+	    <h2>Повторное использование кода</h2>
+	  </header>
+	  <blockquote cite="Wikipedia">
+	    <p>
+              Повторное использование кода — методология
+              проектирования компьютерных и других систем, заключающаяся
+              в том, что система (компьютерная программа, программный
+              модуль) частично либо полностью должна составляться из
+              частей, написанных ранее компонентов и/или частей другой
+              системы.
+            </p>
+	  </blockquote>
+        </section>
+      </div>
+    </div>
+    
+    <div class="slide" id="ThankYou">
+      <div>
+        <section>
+	  <header>
+	    <h2>Спасибо за внимание!</h2>
+	  </header>
+	  <p>Anton Vasiljev</p>
+	  <ul>
+	    <li><a href="http://antono.info">antono.info</a></li>
+	    <li><a href="http://github.com/antono">github.com/antono</a></li>
+	    <li><a href="http://twitter.com/pepelsbey">twitter.com/antono</a></li>
+	    <li><a href="mailto:self@antono.info">self@antono.info</a></li>
+	  </ul>
+	  <p>GObject Introspection: <a href="https://live.gnome.org/GObjectIntrospection">live.gnome.org/GObjectIntrospection</a></p>
+        </section>
+      </div>
+    </div>
+    
+    <!--
+        Для того, чтобы убрать индикатор прогресса
+        из презентации, просто удалите элемент «progress».
+      -->
+    <!-- <div class="progress"><div></div></div> -->
+    
+    <script src="scripts/script.js"></script>
+    <!-- Copyright © 2010–2011 Вадим Макеев, http://pepelsbey.net/ -->
+
+  </body>
+</html>
