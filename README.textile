@@ -1,0 +1,158 @@
+h2. История и цели проекта
+
+GObject Introspection - это проект, который возник для решения проблем
+с созданием высокоуровневых языковых привязок (bindings) для библиотек GNOME. Долгое время все языковые привязки поддерживались вручную, и зачастую значительно отставали от библиотек[1].
+
+GObject Introspection - это технология, позволяющая создавать
+автоматические языковые привязки для библиотек, использующих GLib и
+GObject.  Привязки могут создаваться как на этапе исполнения (через
+FFI) так и на этапе сборки (с использованием компилятора привязок для
+конкретного языка).
+
+Для извлечения метаданных из библиотек используется система аннотаций в комментариях к функциям/методам.
+
+Метаданные хранятся в бинарном формате typelib, обеспечивающем
+быстрый доступ к библиотечным функциям через FFI. Для создания typelib-файла используется промежуточный формат GIR (GObject Introspection
+Repository). GIR основан на XML, содержит информацию о вызове
+функций и документацию API.
+
+h2. Архитектура
+
+<pre>
+  Этап сборки:
+
+          +-----------------------------------------------------------+
+          |   foo.c                                                   |
+          |   foo.h                                                   |
+          |                                                           |
+          | Исходный код библиотеки с анотациями                      |
+          +-----------------------------------------------------------+
+              |                                      |
+             gcc                                 g-ir-scanner
+              |                                      |
+              |                                      V
+              |                              +------------------------+
+              |                              |    Foo.gir             |
+              |                              |                        |
+              |                              |    <GI-name>.gir       |
+              |                              |                        |
+              |                              | XML Файл               |
+              |                              |                        |
+              |                              | Информация о вызовах   |
+              |                              | Зависимости            |
+              |                              | API документация       |
+              |                              |                        |
+              |                              +------------------------+
+              |                                          |
+              |                                     g-ir-compiler
+              |                                          |
+  Рабочая система -----------------------------------------------------------
+              |                                          |
+              V                                          V
+        +-----------------------------+      +---------------------------+
+        |   libfoo.so                 |      |    Foo.typelib            |
+        |                             |      |                           |
+        |                             |      | Двоичная версия данных    |
+        |  ELF файл                   |      | о вызовах и зависимостях  |
+        |                             |      |                           |
+        | Машинный код и данные для   |      +---------------------------+
+        | динамического связывания    |                  A
+        | (DWARF debug data итп)      |                  |
+        +-----------------------------+                  |
+                     A                                   |
+                     |                       +---------------------------+
+                     |                       |  libgirepository.so       |
+                +-----------+                |                           |
+                | libffi.so |                |  Умеет читать .typelib и  |
+                |           |<-------+------>|  представлять их в виде   |
+                +-----------+        |       |  пригодном для вызова     |
+                                     |       |  через FFI                |
+                                     |       +---------------------------+
+                                     |
+                                     |
+                           +----------------------------+
+                           | Языковые привязки          |
+                           +----------------------------+
+
+</pre>
+
+h2. Примеры использования
+
+Я создал репозиторий[2] с примерами использования библиотеки,
+базирующейся на GObject, через автоматические привязки для разных языков.
+
+Рассмотрим пример, использующий язык Vala для создания библиотеки и
+обращения к этой библиотеке из Ruby:
+
+<pre>
+namespace ValaObject {
+	public void say_hello_to(string lang)
+	{
+		print(@"I love You, $lang!!!\n");
+		print("-- Vala\n\n");
+	}
+
+	public class ValaClass : Object {
+		public string name = "Vala Class";
+
+		public string append_to_name(string suffix) {
+			return "%s %s".printf(name, suffix);
+		}
+	}
+}
+</pre>
+
+Ruby использует метаданные из GIR через библиотеку gir_ffi:
+
+<pre>
+require 'gir_ffi'
+
+GirFFI.setup(:ValaObject) # Создание объекта
+
+ValaObject.say_hello_to('Ruby')
+
+class MyValaClass < ValaObject::ValaClass
+  def append_to_name(suffix)
+    super + ' (subclassed) ' + suffix
+  end
+end
+
+instance = MyValaClass.new
+puts instance.append_to_name("called from Ruby")
+</pre>
+
+
+h2. Существующие привязки
+
+Список существующих привязок для GObject Introspection выглядит следующим образом:
+
+* "Vala":https://live.gnome.org/Vala - Родная поддержка GIR.
+* "Genie":https://live.gnome.org/Genie - Родная подержка GIR.
+* "PyGObject":https://live.gnome.org/PyGObject - привязки для Python
+* "Gjs":https://live.gnome.org/Gjs - Javascript (spidermonkey)
+* "Seed":https://live.gnome.org/Seed - Javascript (JSCore, WebKit JS engine)
+* "node-gir":https://github.com/creationix/node-gir - Node.js (V8 Engine)
+* "ruby-gir-ffi":https://github.com/mvz/ruby-gir-ffi/wiki - Ruby
+* "gobject-for-php":https://github.com/indeyets/gobject-for-php - PHP
+* "lgob":http://oproj.tuxfamily.org/wiki/doku.php?id=lgob - Lua (этап компиляции)
+* "lgi":https://github.com/pavouk/lgi - Lua (этап исполнения)
+* "GTK2-Perl/Introspection":https://live.gnome.org/GTK2-Perl/Introspection - привязки для Perl
+* "guile-gir":http://gitorious.org/guile-gir - Scheme (guile)
+* "sbank":http://live.gnome.org/sbank - Scheme (Ikarus, Ypsilon)
+* "JGIR":https://live.gnome.org/JGIR - Java/JVM (этап компиляции, через typelib)
+* "GObjectIntrospection/GObjectConsume":https://live.gnome.org/GObjectIntrospection/GObjectConsume - C++, Qt (этап компиляции)
+* "factor-gir":https://github.com/ex-rzr/factor-gir - Factor
+* "gogobject":https://github.com/indeyets/gobject-for-php - Go (этап компиляции)
+* "cl-gobject-introspection":https://github.com/andy128k/cl-gobject-introspection - Common Lisp
+* "cl-gir":http://bazaar.launchpad.net/~scymtym/+junk/cl-gir/files - GIR for Common Lisp (в процессе)
+* "haskel-gi":http://www.haskell.org/haskellwiki/GObjectIntrospection - Haskell (в процессе)
+* "mono-introspect":https://github.com/alanmcgovern/mono-introspect - Mono
+* "ocaml-gir":http://git.ocamlcore.org/cgi-bin/gitweb.cgi?p=ocaml-gir/ocaml-gir.git - Ocaml (этап компиляции)
+* "gir2pascal":http://wiki.freepascal.org/gir2pascal - Pascal
+
+
+h2. Ссылки
+
+fn1. "GTK+ Language Bindings":http://www.gtk.org/language-bindings.php
+
+fn2. "GObject for your favorite language":https://github.com/antono/vala-object
