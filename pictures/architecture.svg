@@ -18,6 +18,8 @@
    inkscape:export-filename="/home/antono/Documents/Slides/lvee-winter-2012/architecture.png"
    inkscape:export-xdpi="303.60001"
    inkscape:export-ydpi="303.60001">
+  <title
+     id="title3277">GObject Introspection Architecture</title>
   <defs
      id="defs4">
     <marker
@@ -85,7 +87,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="583.2826"
+     inkscape:cx="340.2826"
      inkscape:cy="521.71176"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -179,7 +181,32 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title>GObject Introspection Architecture</dc:title>
+        <dc:date>2012-02-13</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Antono Vasiljev</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>http://creativecommons.org/licenses/by-sa/3.0/</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:language>English</dc:language>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>GObject</rdf:li>
+            <rdf:li>GLib</rdf:li>
+            <rdf:li>GTK</rdf:li>
+            <rdf:li>Bindings</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>http://antono.info/</dc:title>
+          </cc:Agent>
+        </dc:publisher>
       </cc:Work>
     </rdf:RDF>
   </metadata>
